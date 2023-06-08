@@ -1,14 +1,21 @@
-from operations import operations
+from operations import operations as defaults
 
 
 class Calculator:
     stack = []
 
-    def __init__(self, ops=operations) -> None:
-        self.operations = ops
+    def __init__(self, ops=defaults) -> None:
+        if ops is defaults:
+            self.operations = ops
+        else:
+            self.operations = defaults | ops
 
     def __repr__(self) -> str:
-        return " ".join(str(i) for i in self.stack)
+        if len(self.stack) == 0:
+            return "[ ]"
+        else:
+            values = " ".join(str(i) for i in self.stack)
+            return f"[ {values} ]"
 
     def handle_value(self, val):
         self.stack.append(float(val))
@@ -34,25 +41,29 @@ class Calculator:
         except:
             return False
 
-    def input(self, value):
+    def input(self, value) -> str:
         if type(value) == str and value.lower() == "c":
             self.clear()
             return "Cleared"
         elif len(value.split(" ")) > 1:
-            return self.handle_complex_input(value)
+            return str(self.handle_complex_input(value))
         elif value in self.operations.keys():
-            return self.handle_operator(value)
+            return str(self.handle_operator(value))
         else:
             if self.validate_input_value(value):
                 self.handle_value(value)
-                return value
+                return str(value)
             else:
                 self.clear()
                 return "Your input contained an error, please start over."
 
     def calculate(self, operator):
-        second = self.stack.pop()
-        first = self.stack.pop()
+        try:
+            second = self.stack.pop()
+            first = self.stack.pop()
+        except:
+            self.clear()
+            return "Error: Invalid sequence, please start over."
 
         result = self.operations[operator](first, second)
         self.handle_value(result)
