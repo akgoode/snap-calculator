@@ -1,56 +1,59 @@
-def multiply(val1, val2):
-    return val1 * val2
+from operations import operations
 
 
-def add(val1, val2):
-    return val1 + val2
-
-
-def subtract(val1, val2):
-    return val1 - val2
-
-
-def divide(val1, val2):
-    return val1 / val2
-
-
-operations = {"*": multiply, "+": add, "-": subtract, "/": divide}
-
-
-def calculate(items):
+class Calculator:
     stack = []
-    for item in items:
-        if item not in operations.keys():
-            stack.append(item)
+
+    def __init__(self, ops=operations) -> None:
+        self.operations = ops
+
+    def __repr__(self) -> str:
+        return " ".join(str(i) for i in self.stack)
+
+    def handle_value(self, val):
+        self.stack.append(float(val))
+
+    def handle_operator(self, op):
+        return self.calculate(op)
+
+    def handle_complex_input(self, input_string):
+        inputs = input_string.split(" ")
+        result = ""
+        for val in inputs:
+            result = self.input(val)
+
+        return result
+
+    def clear(self):
+        self.stack = []
+
+    def validate_input_value(self, val):
+        try:
+            float(val)
+            return True
+        except:
+            return False
+
+    def input(self, value):
+        if type(value) == str and value.lower() == "c":
+            self.clear()
+            return "Cleared"
+        elif len(value.split(" ")) > 1:
+            return self.handle_complex_input(value)
+        elif value in self.operations.keys():
+            return self.handle_operator(value)
         else:
-            second = int(stack.pop())
-            first = int(stack.pop())
+            if self.validate_input_value(value):
+                self.handle_value(value)
+                return value
+            else:
+                self.clear()
+                return "Your input contained an error, please start over."
 
-            stack.append(operations[item](first, second))
+    def calculate(self, operator):
+        second = self.stack.pop()
+        first = self.stack.pop()
 
-    result = stack.pop()
-    return result
-
-
-values = []
-operators = []
-
-while True:
-    user_input = input("> ")
-    print(user_input)
-    if user_input == "q":
-        break
-    elif len(user_input) > 1:
-        print("will handle long string later")
-    elif user_input in operations.keys():
-        operators.append(user_input)
-    else:
-        values.append(user_input)
-
-    if len(operators) + 1 == len(values):
-        output = calculate(values + operators)
-        values = [output]
-        operators = []
-
-        if len(values) == 1:
-            print(values[0])
+        result = self.operations[operator](first, second)
+        self.handle_value(result)
+        return result
