@@ -1,4 +1,4 @@
-from calculator.calculator import Calculator
+from RPNCalculator import Calculator
 
 
 def divide(val1, val2):
@@ -19,16 +19,16 @@ def greater(val1, val2):
 
 operations = {"/": divide, "^": power, ">": greater}
 
+if __name__ == "__main__":
+    c = Calculator(operations)
 
-c = Calculator(operations)
-
-while True:
-    print("*" * 12)
-    print("Calculator: " + str(c))
-    user_input = input("> ")
-    if user_input == "q":
-        break
-    else:
-        result = c.input(user_input)
-        if "error" in result.lower():
-            print(result)
+    while True:
+        print("*" * 12)
+        print("Calculator: " + str(c))
+        user_input = input("> ")
+        if user_input == "q":
+            break
+        else:
+            result = c.input(user_input)
+            if "error" in result.lower():
+                print(result)
