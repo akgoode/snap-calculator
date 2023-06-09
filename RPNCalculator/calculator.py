@@ -33,29 +33,11 @@ class Calculator:
             values = " ".join(str(i) for i in self.stack)
             return f"[ {values} ]"
 
-    def handle_value(self, val):
-        self.stack.append(float(val))
-
-    def handle_operator(self, op):
-        return self.calculate(op)
-
-    def handle_complex_input(self, input_string):
-        inputs = input_string.split(" ")
-        result = ""
-        for val in inputs:
-            result = self.input(val)
-
-        return result
+    def get_operations_description(self):
+        return " ".join(i for i in self.operations)
 
     def clear(self):
         self.stack = []
-
-    def validate_input_value(self, val):
-        try:
-            float(val)
-            return True
-        except:
-            return False
 
     def input(self, value) -> str:
         try:
@@ -63,12 +45,12 @@ class Calculator:
                 self.clear()
                 return "Cleared"
             elif len(value.split(" ")) > 1:
-                return str(self.handle_complex_input(value))
+                return str(self.__handle_complex_input(value))
             elif value in self.operations.keys():
-                return str(self.handle_operator(value))
+                return str(self.__handle_operator(value))
             else:
-                if self.validate_input_value(value):
-                    self.handle_value(value)
+                if self.__validate_input_value(value):
+                    self.__handle_value(value)
                     return str(value)
                 else:
                     self.clear()
@@ -76,7 +58,28 @@ class Calculator:
         except:
             return "Error: please start over."
 
-    def calculate(self, operator):
+    def __handle_value(self, val):
+        self.stack.append(float(val))
+
+    def __handle_operator(self, op):
+        return self.__calculate(op)
+
+    def __handle_complex_input(self, input_string):
+        inputs = input_string.split(" ")
+        result = ""
+        for val in inputs:
+            result = self.input(val)
+
+        return result
+
+    def __validate_input_value(self, val):
+        try:
+            float(val)
+            return True
+        except:
+            return False
+
+    def __calculate(self, operator):
         try:
             second = self.stack.pop()
             first = self.stack.pop()
@@ -85,5 +88,5 @@ class Calculator:
             return "Error: Invalid sequence, please start over."
 
         result = self.operations[operator](first, second)
-        self.handle_value(result)
+        self.__handle_value(result)
         return result
