@@ -1,4 +1,4 @@
-from operations import operations as defaults
+from calculator.operations import operations as defaults
 
 
 class Calculator:
@@ -42,20 +42,23 @@ class Calculator:
             return False
 
     def input(self, value) -> str:
-        if type(value) == str and value.lower() == "c":
-            self.clear()
-            return "Cleared"
-        elif len(value.split(" ")) > 1:
-            return str(self.handle_complex_input(value))
-        elif value in self.operations.keys():
-            return str(self.handle_operator(value))
-        else:
-            if self.validate_input_value(value):
-                self.handle_value(value)
-                return str(value)
-            else:
+        try:
+            if type(value) == str and value.lower() == "c":
                 self.clear()
-                return "Your input contained an error, please start over."
+                return "Cleared"
+            elif len(value.split(" ")) > 1:
+                return str(self.handle_complex_input(value))
+            elif value in self.operations.keys():
+                return str(self.handle_operator(value))
+            else:
+                if self.validate_input_value(value):
+                    self.handle_value(value)
+                    return str(value)
+                else:
+                    self.clear()
+                    return "Error: Bad input, please start over."
+        except:
+            return "Error: please start over."
 
     def calculate(self, operator):
         try:
