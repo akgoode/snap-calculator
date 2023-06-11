@@ -1,107 +1,204 @@
-Code Sample
-===================
+# Reverse Polish Notation Calculator
 
-We would like to get to know your coding style and see what you would consider your best work.
-In subsequent interviews, we'll talk through your code and make some changes.
+## Purpose
 
-CLI RPN Calculator
-==================
+A command line Reverse Polish Notation calculator that is built to be extensible and consumable by a variety of different services and in different applications.
 
-Implement a command-line reverse polish notation (RPN) calculator using a language that you know well.
+The application available to run here is a simple wrapper around the RPNCalculator package which allows for continuous input through the command line, and decorates the input and output a little bit more for a better user experience than the raw package.
 
-Imaginary Context
------------------
+## Setup
 
-We're building this command-line calculator for people who are comfortable with UNIX-like CLI utilities.
-We are starting with the basic 4 operators now but will want to eventually implement other operators and
-an alternate interface (such as WebSocket, file, or TCP socket).
-There's no need to implement these, but design with these future changes in mind.
+1. Clone this repo
+2. Run `python3 app.py`
+3. Enter inputs
 
-Specifications
---------------
+## Testing
 
-1. The calculator should use standard input and standard output
-2. It should implement the four standard arithmetic operators
-3. The calculator should handle errors and recover gracefully
-4. The calculator should exit when it receives a `q` command or an end of input 
-   indicator (EOF / Ctrl+D)
+1. From the root, run `python3 -m unittest`
 
-You may take creative liberty with anything else; have fun with it!
+## Architecture
 
-Example Input/Output
---------------------
+This application consists of 2 packages, a command line application that passes inputs to the calculator class, and the calculator class which manages the input and returns outcomes of users' inputs, whether valid or invalid.
 
-Use your best judgment as far as the format is concerned, as long as it makes sense to the end user. Your calculator should at the minimum handle the following examples. 
+## Usage
 
-    > 5 
-    5
-    > 8
-    8
-    > +
-    13
+This calculator was designed to be compatible with multiple input methods: one number or operation at a time, a sequence of values, or a combination.
 
----
+The calculator class itself has a simple API, a function called `input` and a function called `get_operations_description`. `input` receives a string and returns a string. The input string can be a numerical value, an operator, or a valid RPN sequence. The user can change between input types, for instance entering first a long sequence, then another value and operator. `get_operations_description` will return a string that contains all valid operations that have been configured for the calculator at startup.
 
-    > 5 5 5 8 + + -
-    -13.0
-    > 13 +
-    0.0
+In the event that a user enters a sequence of characters, the calculator will add them in sequence as if they were entered individually, also taking into account any values that might be stored in memory.
 
----
+Some additional values are:
 
-    > -3
-    -3.0
-    > -2
-    -2.0
-    > *
-    6.0
-    > 5
-    5.0
-    > +
-    11.0
+1.  'q' will quit the application.
+2.  'c' or 'C' will clear the memory of the calculator.
 
----
+The output string will depend on that the most recent input is. In the event of a value being entered, the application will output that value. If the input is an operator and there are at least 2 values stored in memory, the output will be the result of that operation. If the input is a sequence of values, the output will be whatever the resulting output would have been if it was a single input.
 
-    > 5
-    5
-    > 9
-    9
-    > 1
-    1
-    > -
-    8
-    > /
-    0.625
+Some examples of valid inputs:
 
-Guidelines
-==========
+```
+> 2
+2
+> 5
+5
+> +
+7.0
+```
 
-Things We Care About
---------------------
+```
+> 2 5 +
+7.0
+```
 
-These hold true both for this submission and for your work here in general. We expect that:
+```
+> 2 5
+5
+> +
+7.0
+```
 
-- It works right
-- The code is well-abstracted and uses good names
-- It provides for a good user experience (end-user and programmer)
-- The code adheres to style and practices accepted by the community
-- Tests demonstrate intended use, help prevent regression, and can withstand change
-- You write intention-revealing commit messages
+```
+> 5 5 5 8 + + -
+-13.0
+> 13 +
+0.0
+```
 
-There are a range of expectations from various companies in their interviewing code exercises, from minimal code to get the job done and prove you can program, to expecting exemplary code that demonstrates how well you can design things when the occasion requires it. We tend to judge toward the latter end of the spectrum, assuming that anyone who can write well-crafted code can also scale down quality to do things quickly, but not necessarily the other way around.
+```
+> 2
+2
+> c
+Cleared
+```
 
-Readme
-------
+Some examples of invalid inputs:
 
-Write your README as if it was for a production service. Include the following items:
+```
+> +
+Error: Invalid sequence, please start over.
+```
 
-* A high-level description of your solution
-* Reasoning behind your technical choices, including architectural
-* Trade-offs you might have made, anything you left out, or what you might do differently if you were to spend additional time on the project
-* How to run your code, if applicable
-* Link to the hosted application, if applicable
+```
+> 5 2 3 1 + - / *
+Error: Invalid sequence, please start over.
+```
 
-Submitting
-----------
+```
+> a
+Error: Bad input, please start over.
+```
 
-Submit your code as a **separate** git repository, preferably on GitHub
+Additionally, printing or otherwise using the calculator as a string will result in a string that describes the current set of values on its stack. This is useful for presenting a good user interface for consumption by 3rd parties.
+
+The command line version of this app adds a little more visibility into the current state of the calculator using this feature. When starting the app, it will show an empty calculator object and a dividing line. When the user enters a value, it will appear in the calculator object. When the user enters an operator, the operation will occur and the calculator will update to show the resulting value in the calculator. This was a design choice to make this particular implementation of the calculator a bit more user-friendly to someone who may be inputting values on the command line, and was implemented outside of the calculator class. The API of the calculator itself only takes in values and returns values or errors, and leaves this part up to the implementation.
+
+Some examples of the command line wrapper around the calculator:
+
+```
+************
+Calculator: [ ]
+> 2
+************
+Calculator: [ 2.0 ]
+> 5
+************
+Calculator: [ 2.0 5.0 ]
+> +
+************
+Calculator: [ 7.0 ]
+> c
+************
+Calculator: [ ]
+>
+```
+
+```
+************
+Calculator: [ ]
+> +
+Error: Invalid sequence, please start over.
+************
+Calculator: [ ]
+>
+```
+
+```
+************
+Calculator: [ ]
+> 5 5 2 + - -
+Error: Invalid sequence, please start over.
+************
+Calculator: [ ]
+>
+```
+
+## Extensibility
+
+By default, the calculator will contain the operations for addition, subtraction, multiplication, and division. When creating an instance of the calculator class, the consumer can also pass in a dictionary of operations for it to use. The keys of this dictionary are the string values of the operations themselves, and the values are the functions that will get called.
+
+At the moment, each function must adhere to this signature:
+
+`(val1: float, val2: float) -> float`
+
+This dictionary will be merged with the default operation dictionary, so in the event that the default operations need to be overwritten, they can be passed with the corresponding symbol.
+
+Here is an example of this in action:
+
+```python
+def divide(val1, val2):
+    print("custom divide!")
+    return round(val1 / val2, 5)
+
+
+def power(val1, val2):
+    return val1**val2
+
+
+operations = {"/": divide, "^": power}
+
+calc = Calculator(operations)
+```
+
+The result of instantiating the calculator like this will be that the default addition, subtraction, and multiplication functions will be used, the divide function will be overwritten by this custom division function, and the calculator will have the newly implemented "power" function available with the operator `^`.
+
+This also allows for some other creative operations that aren't traditionally done on a calculator. We can modify the last example to do something like this:
+
+```python
+def divide(val1, val2):
+    print("custom divide!")
+    return round(val1 / val2, 5)
+
+
+def power(val1, val2):
+    return val1**val2
+
+
+def greater(val1, val2):
+    if val2 > val1:
+        return val2
+    else:
+        return val1
+
+
+operations = {"/": divide, "^": power, ">": greater}
+
+
+c = Calculator(operations)
+```
+
+Now there is a `greater` function which will return whichever of the 2 operands is larger, or just the first value if they are equal.
+
+## Next Steps and Roadmap
+
+1. Features
+   - More robust input validation
+   - Accept a more robust custom operations dictionary where a consumer of the package can include tests.
+   - More options for the end user upon startup (debug mode, default number of decimal places to round, etc.)
+   - Support for operations that require 3 inputs
+   - Define a calculator interface and allow calculators of different types to be used
+2. Deployment
+   - Publish RPNCalculator as Pip package.
+   - Publish this app on APT for simple install
+3. Architecture
+   - Dependency injection to decouple the classes from each other.
