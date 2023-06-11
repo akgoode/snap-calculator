@@ -16,11 +16,15 @@ The application available to run here is a simple wrapper around the RPNCalculat
 
 1. From the root, run `python3 -m unittest`
 
+## Architecture
+
+This application consists of 2 packages, a command line application that passes inputs to the calculator class, and the calculator class which manages the input and returns outcomes of users' inputs, whether valid or invalid.
+
 ## Usage
 
 This calculator was designed to be compatible with multiple input methods: one number or operation at a time, a sequence of values, or a combination.
 
-The calculator has a simple API, a function called "input". This input receives a string and returns a string. The input string can be a numerical value, an operator, or a valid RPN sequence. The user can change between input types, for instance entering first a long sequence, then another value and operator.
+The calculator class itself has a simple API, a function called `input` and a function called `get_operations_description`. `input` receives a string and returns a string. The input string can be a numerical value, an operator, or a valid RPN sequence. The user can change between input types, for instance entering first a long sequence, then another value and operator. `get_operations_description` will return a string that contains all valid operations that have been configured for the calculator at startup.
 
 In the event that a user enters a sequence of characters, the calculator will add them in sequence as if they were entered individually, also taking into account any values that might be stored in memory.
 
@@ -85,11 +89,11 @@ Error: Invalid sequence, please start over.
 Error: Bad input, please start over.
 ```
 
-Additionally, printing or otherwise using the calculator as a string will result in the a string that describes the current set of values on its stack. This is useful for presenting a good user interface for consumption by 3rd parties.
+Additionally, printing or otherwise using the calculator as a string will result in a string that describes the current set of values on its stack. This is useful for presenting a good user interface for consumption by 3rd parties.
 
 The command line version of this app adds a little more visibility into the current state of the calculator using this feature. When starting the app, it will show an empty calculator object and a dividing line. When the user enters a value, it will appear in the calculator object. When the user enters an operator, the operation will occur and the calculator will update to show the resulting value in the calculator. This was a design choice to make this particular implementation of the calculator a bit more user-friendly to someone who may be inputting values on the command line, and was implemented outside of the calculator class. The API of the calculator itself only takes in values and returns values or errors, and leaves this part up to the implementation.
 
-Some examples:
+Some examples of the command line wrapper around the calculator:
 
 ```
 ************
@@ -192,6 +196,9 @@ Now there is a `greater` function which will return whichever of the 2 operands 
    - Accept a more robust custom operations dictionary where a consumer of the package can include tests.
    - More options for the end user upon startup (debug mode, default number of decimal places to round, etc.)
    - Support for operations that require 3 inputs
+   - Define a calculator interface and allow calculators of different types to be used
 2. Deployment
    - Publish RPNCalculator as Pip package.
    - Publish this app on APT for simple install
+3. Architecture
+   - Dependency injection to decouple the classes from each other.
